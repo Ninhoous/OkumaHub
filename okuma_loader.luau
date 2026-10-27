@@ -2,6 +2,7 @@
 -- Use:  loadstring(game:HttpGet("https://raw.githubusercontent.com/Ninhoous/OkumaHub/main/okuma_loader.luau"))()
 -- Asks for the key, checks it with the jnkie public SDK, then loads the protected script from jnkie.
 -- A saved key is checked silently, so the teleports of the auto loops come back without the window.
+-- On the service's keyless days (jnkie schedule) it skips the window and loads right away.
 -- Any other game just gets a "not supported" notice.
 -- SDK reference: https://docs.jnkie.com/roblox-sdk/public-sdk
 
@@ -108,6 +109,16 @@ local function launch(key)
     genv.SCRIPT_KEY = key
     local ok, err = pcall(Junkie.load_script)
     if not ok then notify("Could not load " .. entry.name .. "."); warn("[Okuma key] " .. tostring(err)) end
+end
+
+-- keyless days (set on the jnkie dashboard): "KEYLESS" passes, straight in, no window; the saved key is kept
+if not PREVIEW then
+    local ok, res = pcall(Junkie.check_key, "KEYLESS")
+    if ok and type(res) == "table" and res.valid and (res.is_keyless or res.message == "KEYLESS") then
+        notify("Keyless day: no key needed.")
+        launch("KEYLESS")
+        return
+    end
 end
 
 -- a saved key that still passes: straight in, no window
