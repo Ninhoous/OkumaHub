@@ -13,7 +13,7 @@ local CONFIG = {
     service = "Okuma",  -- Services: the service name (or its numeric id)
     identifier = "1226841", -- your Junkie user id (dashboard), not a Roblox or Discord id
     provider = "",      -- Providers: the one behind "Get key" (Linkvertise, Work.ink, ...)
-    discord = "",       -- invite copied by the Discord button ("" hides it)
+    discord = "https://discord.gg/upZFNJ5Tc", -- invite copied by the Discord button ("" hides it)
     oneTimeKeys = false, -- true when the service gives one-time keys: check_key would burn them, so it is skipped
     keyFile = "Okuma/key.txt",
 }
