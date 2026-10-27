@@ -1,8 +1,8 @@
 -- Okuma loader (jnkie key system)
 -- Use:  loadstring(game:HttpGet("https://raw.githubusercontent.com/Ninhoous/OkumaHub/main/okuma_loader.luau"))()
--- A game with a jnkie token: asks for the key, checks it with the jnkie public SDK, then loads the protected script.
+-- Asks for the key, checks it with the jnkie public SDK, then loads the protected script from jnkie.
 -- A saved key is checked silently, so the teleports of the auto loops come back without the window.
--- A game without a token still loads its script from the GitHub folder, no key.
+-- Any other game just gets a "not supported" notice.
 -- SDK reference: https://docs.jnkie.com/roblox-sdk/public-sdk
 
 -- ============================================================================
@@ -16,18 +16,11 @@ local CONFIG = {
     oneTimeKeys = false, -- true when the service gives one-time keys: check_key would burn them, so it is skipped
     keyFile = "Okuma/key.txt",
 }
--- each game: id = the jnkie script's public token (the part of its loadstring after /public/), "" = no key yet:
--- file is then loaded from BASE_URL as before
-local BASE_URL = "https://raw.githubusercontent.com/Ninhoous/OkumaHub/main/Completed/"
-local PLACES = {
-    [189707]    = { name = "Natural Disaster Survival", id = "", file = "okuma_nds.luau" },
-    [286090429] = { name = "Arsenal",                   id = "", file = "okuma_arsenal.luau" },
-}
--- GameId (every place of the game: menu, lobby, match servers)
+-- GameId (every place of the game: menu, lobby, match servers) -> id = the jnkie script's public token
+-- (the part of its loadstring after /public/)
 local UNIVERSES = {
     [4658598196] = { name = "Attack on Titan Revolution", id = "797b542977672b9df976f2cd4a33e3695ee87229fcecbb8c0dfe90b376ad42c0" },
 }
-local UNIVERSAL = { name = "Universal", id = "", file = "okuma_universal.luau" }
 
 -- ============================================================================
 local Players = game:GetService("Players")
@@ -41,18 +34,8 @@ local function notify(text)
     pcall(function() StarterGui:SetCore("SendNotification", { Title = "Okuma", Text = text, Duration = 7 }) end)
 end
 
-local entry = PLACES[game.PlaceId] or UNIVERSES[game.GameId] or UNIVERSAL
-
--- no jnkie token: the old way, the script straight from GitHub
-if entry.id == "" then
-    local ok, src = pcall(function() return game:HttpGet(BASE_URL .. entry.file) end)
-    if not ok or type(src) ~= "string" or #src == 0 or src:find("^404") then notify("Could not download " .. entry.name .. "."); return end
-    local fn = loadstring(src)
-    if not fn then notify("Error loading " .. entry.name .. "."); return end
-    local okRun, err = pcall(fn)
-    if not okRun then notify("Error running " .. entry.name .. "."); warn("[Okuma] " .. tostring(err)) end
-    return
-end
+local entry = UNIVERSES[game.GameId]
+if not entry then notify("This game is not supported yet."); return end
 
 -- PREVIEW: with the jnkie values still empty the window opens against a fake SDK, so the look can be tested.
 -- Key "okuma" passes, "expired" / "hwid" show those errors, anything else is invalid. Nothing is saved or loaded.
@@ -234,7 +217,7 @@ end))
 New("TextLabel", { Position = UDim2.new(0, 66, 0, 20), Size = UDim2.new(1, -120, 0, 18), BackgroundTransparency = 1, Text = "Okuma",
     TextColor3 = C.text, FontFace = F.bold, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, Parent = win })
 New("TextLabel", { Position = UDim2.new(0, 66, 0, 40), Size = UDim2.new(1, -120, 0, 14), BackgroundTransparency = 1,
-    Text = PREVIEW and "Key system  ·  preview" or "Key system",
+    Text = PREVIEW and "Key system  ·  preview" or "Key system  ·  v3",
     TextColor3 = C.dim, FontFace = F.regular, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, Parent = win })
 local closeBtn = New("TextButton", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 14), Size = UDim2.new(0, 28, 0, 28),
     BackgroundColor3 = C.card, BackgroundTransparency = 1, AutoButtonColor = false, Text = "", Parent = win })
